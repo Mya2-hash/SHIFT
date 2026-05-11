@@ -111,6 +111,7 @@ except: jp_holidays = {}
 weekdays_ko = ["월", "화", "수", "목", "금", "토", "일"]
 weekdays_jp = ["月", "火", "水", "木", "金", "土", "日"]
 
+# ✨ 범인 검거 구역: 빠졌던 start, end, msg_done 번역을 다시 꽉꽉 채워 넣었습니다!
 lang_dict = {
     "日本語": {
         "co_name": "株式会社NEXTスタッフサービス", "author": "制作: HWANG YOUNGSEON",
@@ -122,7 +123,8 @@ lang_dict = {
         "load_save": "💾 データ管理", "upload": "バックアップ", "backup_btn": "📥 PCにフルバックアップ",
         "temp_save_title": "⏳ 一時保存 (更新しても維持)", "temp_save_btn": "💾 一時保存", "temp_clear_btn": "🗑️ 初期化",
         "temp_save_ok": "✅ 一時保存完了！", "temp_clear_ok": "✅ 初期化されました！",
-        "template_msg": "📁 様式アップロード", "result_title": "📊 結果", "hq_col": "★本社出勤★", "shortage": "⚠️不足", "loc_off": "X (休み)"
+        "template_msg": "📁 様式アップロード", "result_title": "📊 結果", "hq_col": "★本社出勤★", "shortage": "⚠️不足", "loc_off": "X (休み)",
+        "time_set": "⏰ 勤務時間", "start": "開始", "end": "終了", "msg_load": "✅ ロード成功", "msg_done": "✅ 生成完了"
     },
     "한국어": {
         "co_name": "株式会社NEXTスタッフ서비스", "author": "제작자: HWANG YOUNGSEON",
@@ -134,7 +136,8 @@ lang_dict = {
         "load_save": "💾 데이터 관리", "upload": "백업 업로드", "backup_btn": "📥 PC에 풀 백업하기",
         "temp_save_title": "⏳ 일시저장 (새로고침 복구)", "temp_save_btn": "💾 일시저장", "temp_clear_btn": "🗑️ 싹 지우기",
         "temp_save_ok": "✅ 서버에 일시저장 완료!", "temp_clear_ok": "✅ 초기화되었습니다!",
-        "template_msg": "📁 양식 업로드", "result_title": "📊 결과", "hq_col": "★본사출사★", "shortage": "⚠️부족", "loc_off": "X (휴무)"
+        "template_msg": "📁 양식 업로드", "result_title": "📊 결과", "hq_col": "★본사출사★", "shortage": "⚠️부족", "loc_off": "X (휴무)",
+        "time_set": "⏰ 시간", "start": "시작", "end": "종료", "msg_load": "✅ 로드 성공", "msg_done": "✅ 완료"
     }
 }
 
@@ -210,7 +213,7 @@ for i in range(num_staff):
     if f"or_{i}" not in st.session_state: st.session_state[f"or_{i}"] = []
     if f"hr_{i}" not in st.session_state: st.session_state[f"hr_{i}"] = []
     
-    # 동적 데이터 정제 구역 (에러 방지)
+    # 동적 데이터 정제 구역
     if st.session_state[f"af_{i}"] not in affil_options:
         st.session_state[f"af_{i}"] = L["hq_staff"] if st.session_state[f"af_{i}"] in ["本社", "본사"] else L["disp_staff"]
     st.session_state[f"or_{i}"] = [d for d in st.session_state[f"or_{i}"] if 1 <= d <= days_in_month]
