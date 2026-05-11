@@ -8,6 +8,30 @@ import ast
 from openpyxl import load_workbook
 from openpyxl.styles import Font
 
+# --- [パスワードロック設定 (비밀번호 잠금 설정)] ---
+def check_password():
+    """パスワードが正しければTrueを返します。"""
+    def password_entered():
+        # 👇 ここに希望する社内パスワードを設定してください (여기에 사내 비밀번호를 설정하세요. 예: NEXT2026)
+        if st.session_state["password"] == "NEXT2026":
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # セキュリティのため削除
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.markdown("<h2 style='text-align: center; color: #1E3A8A;'>🏢 NEXT STAFF SERVICE</h2>", unsafe_allow_html=True)
+        st.text_input("社内共通パスワードを入力してください", type="password", on_change=password_entered, key="password")
+        return False
+    elif not st.session_state["password_correct"]:
+        st.markdown("<h2 style='text-align: center; color: #1E3A8A;'>🏢 NEXT STAFF SERVICE</h2>", unsafe_allow_html=True)
+        st.text_input("❌ パスワードが間違っています。もう一度入力してください。", type="password", on_change=password_entered, key="password")
+        return False
+    return True
+
+if not check_password():
+    st.stop() # パスワードを入力するまでは下のコードを実行しない
+
 # --- [0] 기본 설정 및 세션 초기화 ---
 st.set_page_config(page_title="2026 Smart Scheduler", layout="wide", page_icon="📅")
 
@@ -35,14 +59,13 @@ def handle_upload():
                 staff_list = df_staff.to_dict('records')
                 st.session_state['num_staff_val'] = len(staff_list)
                 for i, row in enumerate(staff_list):
-                    # ✨ 버그 수정: 신버전(pure_name)과 구버전(name) 모두 인식하여 이름 복구
+                    # 신버전(pure_name)과 구버전(name) 호환
                     s_name = row.get('pure_name', row.get('name', f"Staff{i+1}"))
                     st.session_state[f"sn_{i}"] = str(s_name)
-                    
                     st.session_state[f"af_{i}"] = str(row.get('affiliation', "本社"))
                     st.session_state[f"to_{i}"] = int(row.get('target_off', 8))
                     
-                    # ✨ 시간 복구 기능 추가
+                    # 시간 복구
                     shift_str = str(row.get('shift', '09:00-18:00'))
                     try:
                         s_st, s_et = shift_str.split('-')
@@ -51,7 +74,6 @@ def handle_upload():
                     except:
                         pass
 
-                    # 날짜 리스트 복구
                     for key_prefix, col_name in [("or", "off_list"), ("hr", "hq_list"), ("sl", "possible_locs")]:
                         val = row.get(col_name, [])
                         if isinstance(val, str):
@@ -161,7 +183,6 @@ for i in range(num_staff):
         s_affil = col_a.selectbox(L["affiliation"], affil_options, index=af_idx, key=f"af_{i}", label_visibility="collapsed")
         
         tc1, tc2 = st.columns(2)
-        # ✨ 백업된 시간 설정 불러오기
         st_t = tc1.time_input(L["start"], value=st.session_state.get(f"st_{i}", time(9, 0)), key=f"st_{i}")
         et_t = tc2.time_input(L["end"], value=st.session_state.get(f"et_{i}", time(18, 0)), key=f"et_{i}")
         shift_str = f"{st_t.strftime('%H:%M')}-{et_t.strftime('%H:%M')}"
